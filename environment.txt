@@ -1,0 +1,83 @@
+true \a b. a
+false \a b. b
+
+zero        \f x. x
+one         \f x. f x
+two         \f x. f (f x)
+three       \f x. f (f (f x))
+four        \f x. f (f (f (f x)))
+five        \f x. f (f (f (f (f x))))
+six         \f x. f (f (f (f (f (f x)))))
+seven       \f x. f (f (f (f (f (f (f x))))))
+eight       \f x. f (f (f (f (f (f (f (f x)))))))
+nine        \f x. f (f (f (f (f (f (f (f (f x))))))))
+ten         \f x. f (f (f (f (f (f (f (f (f (f x)))))))))
+eleven      \f x. f (f (f (f (f (f (f (f (f (f (f x))))))))))
+twelve      \f x. f (f (f (f (f (f (f (f (f (f (f (f x)))))))))))
+thirteen    \f x. f (f (f (f (f (f (f (f (f (f (f (f (f x))))))))))))
+fourteen    \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f x)))))))))))))
+fifteen     \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x))))))))))))))
+sixteen     \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x)))))))))))))))
+seventeen   \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x))))))))))))))))
+eighteen    \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x)))))))))))))))))
+nineteen    \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x))))))))))))))))))
+twenty      \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x)))))))))))))))))))
+twentyone   \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x))))))))))))))))))))
+twentytwo   \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x)))))))))))))))))))))
+twentythree \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x))))))))))))))))))))))
+twentyfour  \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x)))))))))))))))))))))))
+
+Y \f. (\x. f (x x)) (\x. f (x x))
+
+
+iszero      \n. n (\x a b.b)if          \a b c. a b c (\a b. a)
+
+% arythmetics
+pred        \n f x. n (\g h. h (g f))(\u. x)(\u. u)
+succ        \n f x. f (n f x)
+minus       \a b. if (iszero b) a (minus (pred a) (pred b))
+plus        \a b. if (iszero b) a (plus (succ a) (pred b))
+mul         \a b. if (iszero b) zero (plus a (mul a (pred b)))
+sqr         \a. mul a a
+div         \x y. if (iszero (minus y x)) (succ (div (minus x y) y)) zero
+
+% logics
+and         \x y. if x y false
+or          \x y. if x true y
+isGt        \x y. iszero (minus y x)
+isLt        \x y. iszero (minus x y)
+
+pair        \x y z. z x y
+fst         \p. p (\x y. x)
+snd         \p. p (\x y. y)
+
+% with pairs 
+nilP        pair true true
+isnilP      fst
+consP       \h. \t. pair false (pair h t)
+headP       \z. fst (snd z)
+tailP       \z. snd (snd z)
+
+mapP        \f list. if (isnilP list) nilP (consP (f (headP list)) (mapP f (tailP list)))
+foldlP      \f z0 list. if (isnilP list) z0 (foldlP f (f z0 (headP list)) (tailP list))
+
+% 2
+task2       mapP sqr
+
+% 7
+task7       \list. foldlP (\result element. and result (isGt element three)) true list
+
+% without pairs
+nil         \c n. n
+isnil       \l. l (\h t. false) true
+cons        \h. \t c. \n. c h (t c n)
+head        \l. l (\h t. h) false
+tail        \l. fst (l (\x p. pair (snd p) (cons x (snd p))) (pair nil nil))
+
+map         \f list. if (isnil list) nil (cons (f (head list)) (map f (tail list)))
+foldl       \f z0 list. if (isnil list) z0 (foldl f (f z0 (head list)) (tail list))
+
+% 11
+task11      map sqr
+% 17
+task17      foldl (\result element. if (isGt element three) (succ result) result) zero
