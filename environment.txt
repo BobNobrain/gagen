@@ -1,3 +1,4 @@
+% Constants
 true \a b. a
 false \a b. b
 
@@ -26,32 +27,55 @@ twentyone   \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f 
 twentytwo   \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x)))))))))))))))))))))
 twentythree \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x))))))))))))))))))))))
 twentyfour  \f x. f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f (f x)))))))))))))))))))))))
+twentyfive  succ twentyfour
 
-Y \f. (\x. f (x x)) (\x. f (x x))
+% Combinators
+Y           \f. (\x. f (x x)) (\x. f (x x))
+I           \x. x
+K           \x y. x
+S           \x y z. x z (y z)
+B           \x y z. x (y z)
+W           \x y. x y y
+C           \x y z. x z y
 
-
-iszero      \n. n (\x a b.b)if          \a b c. a b c (\a b. a)
-
-% arythmetics
+% Math
 pred        \n f x. n (\g h. h (g f))(\u. x)(\u. u)
 succ        \n f x. f (n f x)
+iszero      \n. n (\x a b.b)
+if          \a b c. a b c (\a b. a)
 minus       \a b. if (iszero b) a (minus (pred a) (pred b))
 plus        \a b. if (iszero b) a (plus (succ a) (pred b))
 mul         \a b. if (iszero b) zero (plus a (mul a (pred b)))
 sqr         \a. mul a a
+% integer division
 div         \x y. if (iszero (minus y x)) (succ (div (minus x y) y)) zero
+% module remainder
+rem         \x y. if (lt x y) x (rem (minus x y) y)
 
-% logics
+% Logic
 and         \x y. if x y false
 or          \x y. if x true y
-isGt        \x y. iszero (minus y x)
-isLt        \x y. iszero (minus x y)
+impl        \x y. if x y true
+not         \x. if x false true
 
+% compare
+% greater or equal
+ge          \x y. iszero (minus y x)
+% less or equal
+le          \x y. iszero (minus x y)
+% greater than
+gt          \x y. not (le x y)
+% less than
+lt          \x y. not (ge x y)
+% equal
+eq          \x y. and (ge x y) (le x y)
+
+% Pairs
 pair        \x y z. z x y
 fst         \p. p (\x y. x)
 snd         \p. p (\x y. y)
 
-% with pairs 
+% Lists (via pairs)
 nilP        pair true true
 isnilP      fst
 consP       \h. \t. pair false (pair h t)
@@ -61,13 +85,10 @@ tailP       \z. snd (snd z)
 mapP        \f list. if (isnilP list) nilP (consP (f (headP list)) (mapP f (tailP list)))
 foldlP      \f z0 list. if (isnilP list) z0 (foldlP f (f z0 (headP list)) (tailP list))
 
-% 2
-task2       mapP sqr
+lenP        foldlP (\acc item. succ acc) zero
+sumP        foldlP (\acc item. plus acc item) zero
 
-% 7
-task7       \list. foldlP (\result element. and result (isGt element three)) true list
-
-% without pairs
+% Lists
 nil         \c n. n
 isnil       \l. l (\h t. false) true
 cons        \h. \t c. \n. c h (t c n)
@@ -77,7 +98,5 @@ tail        \l. fst (l (\x p. pair (snd p) (cons x (snd p))) (pair nil nil))
 map         \f list. if (isnil list) nil (cons (f (head list)) (map f (tail list)))
 foldl       \f z0 list. if (isnil list) z0 (foldl f (f z0 (head list)) (tail list))
 
-% 11
-task11      map sqr
-% 17
-task17      foldl (\result element. if (isGt element three) (succ result) result) zero
+len         foldl (\acc item. succ acc) zero
+sum         foldl plus zero
